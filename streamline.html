@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang='en' xmlns="http://www.w3.org/1999/xhtml" xmlns:fb="http://ogp.me/ns/fb#">
+    <head>
+        <title>Streamline</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8"/>
+        <meta property="og:title" content="Streamline" />
+        <meta property="og:description" content="Movie streaming searches simplified." />
+        <meta property="og:url" content="http://www.jakewebbsite.com/streamline" />
+        <meta property="og:image" content="images/streamline_avatar.jpg" />
+        <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+        <script src="https://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <link href='https://fonts.googleapis.com/css?family=Lato:300' rel='stylesheet' type='text/css'>
+        <link rel="shortcut icon" type="image/png" href="images/streamline_icon.png" />
+        <link rel="stylesheet" media="screen and (max-width:500px)" href="streamline_mobile.css" />
+
+        <style>
+            * {
+                text-align: center;
+                margin: auto;
+                font-family: 'Lato', sans-serif;
+                font-weight: 300;
+            }
+            body {
+                margin-top: 6%;
+                background-color: white;
+            }
+            .resize {
+                width: 55%;
+                height: auto;
+                margin: 28px;
+                min-width: 420px;
+                max-width: 550px;
+                transition: width 1s;
+                display: none;
+            }
+            .active {
+                display: inline;
+            }
+            #header {
+                margin-top: 18%;
+                width: 100%;
+                transition: margin 1s;
+                position: fixed;
+            }
+            #searchResultsContainer {
+                width: 80%;
+                height: 800px;
+                margin: auto;
+                overflow: scroll;
+                max-width: 800px;
+                margin-bottom: 40px;
+            }
+            #userInput {
+                width: 50%;
+                height: 35px;
+                border-radius: 5px;
+                outline: none;
+                margin-bottom: 60px;
+                text-align: center;
+                background-color: #d1d1d1;
+                font-color: black;
+                border: 0;
+            }
+            input {
+                font-size: 16px;
+                font-weight: 400;
+                max-width: 400px;
+                /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.08);*/
+            }
+            h2 {
+                display: inline-block;
+            }
+            a {
+                text-decoration: none;
+                color: #51c9ef;
+            }
+            a:hover {
+                color: #d1d1d1;
+            }
+
+            ::-webkit-input-placeholder {
+               color: black;
+               font-size: 15px;
+            }
+            :-moz-placeholder { /* Firefox 18- */
+               color: black;
+               font-size: 15px;
+            }
+            ::-moz-placeholder {  /* Firefox 19+ */
+               color: black;
+               font-size: 15px;
+            }
+            :-ms-input-placeholder {
+               color: black;
+               font-size: 15px;
+            }
+
+            .result {
+                /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.08);*/
+                margin-left: 4%;
+                margin-right: 4%;
+                height: 250px;
+            }
+            .resultHeader {
+                width: 35%;
+                height: auto;
+                margin: 0px;
+                display: inline-block;
+                height: 220px;
+                top: 200px;
+            }
+
+            .resultSources {
+                width: 45%;
+                height: 0px;
+                margin: 0px;
+                margin-left: 10%;
+                margin-bottom: 10%;
+                display: inline-block;
+                max-wdith: 600px;
+                max-height: 220px;
+            }
+
+            .streamLogo {
+                display: inline-block;
+                width: 40%;
+                margin: 5%;
+                padding: auto;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div id='header'>
+            <div id='logoSwitcher'>
+                <img src='images/streamline_logo.png' class='resize active'/>
+                <img src='images/streamline_logo_1.png' class='resize'/>
+                <img src='images/streamline_logo_2.png' class='resize'/>
+                <img src='images/streamline_logo_3.png' class='resize'/>
+            </div>
+            <br>
+            <input id='userInput' class='resizeForm' type='text' placeholder='type title + press enter' align='center' onfocus="this.placeholder = ''" onblur="this.placeholder = 'type title + press enter'"></input>
+            <div id='searchResultsContainer'></div>
+        </div>
+        <!-- <h2>Created by <a href="http://www.jakewebbsite.com">Jake Webb</a><br><br><br></h2> -->
+
+        <script>
+            Array.prototype.push();
+            String.prototype.replace();
+
+            var data;
+            var resultsArray = [];
+            var loadingResults = false;
+
+            var baseAPI = 'http://api-public.guidebox.com/v1.43/';
+            var region = 'US/';
+            var key = 'rK3Jy0kB3CZM9FTSduDgHNZ74UHh3dxA/';
+            var movieTitle = 'search/movie/title/';
+            var showTitle = 'search/title/'
+            var fuzzySearch = 'fuzzy/';
+            var exactSearch = 'exact/';
+
+
+            $('#userInput').keypress(function(enter) {
+                if(enter.which == 13) {
+                    loadingResults = true;
+                    loadResults();
+                    resizeHeader();
+                    submitSearch();
+                };
+            });
+
+            var resizeHeader = function() {
+                $('#header').css('margin-top','0px');
+                $('.resize').css('width','40%');
+            };
+
+            var submitSearch = function() {
+                $('#searchResultsContainer').empty();
+                var tripleEncode = function(input) {
+                    var userInput = '';
+                    for(var i = 0; i < input.length; i++) {
+                        if (input[i] === ' ') {
+                            userInput += input[i].replace(' ', '%252520');
+                        } else {
+                            userInput += input[i];
+                        };
+                    };
+                    return userInput;
+                };
+
+                var resultID = null;
+                var userInput = document.getElementById('userInput').value;
+                var userInputEncoded = tripleEncode(userInput) + '/';
+
+                var guideBoxAPIExact = baseAPI + region + key + movieTitle + userInputEncoded + exactSearch;
+                var movieGuideBoxAPIFuzzy = baseAPI + region + key + movieTitle + userInputEncoded + fuzzySearch;
+                var showsGuideBoxAPIFuzzy = baseAPI + region + key + showTitle + userInputEncoded + fuzzySearch;
+
+                var getMovieDataFuzzy = $.getJSON(movieGuideBoxAPIFuzzy, function(data) {
+                    var result = data.results;
+
+                    for(var i = 0; i < result.length; i++) {
+                        resultsArray = [];
+                        result[i].netflix = false;
+                        result[i].huluPlus = false;
+                        result[i].amazonPrime = false;
+                        result[i].hboNow = false;
+                        result[i].starzPlay = false;
+                        result[i].showtime = false;
+                        result[i].noStreams = true;
+                        resultsArray[i] = result[i];
+                        $('#searchResultsContainer').append('<div class="result" id="result' + i + '">' + '<div class="resultHeader" id="resultHeader' + i + '">' + '<em>' + result[i].title + '</em>, ' + result[i].release_year + '<br/>' + '<img src="' + result[i].poster_120x171 + '">' + '</div><div class="resultSources" id="resultSources' + i + '"></div></div><br>');
+
+                        resultID = result[i].id;
+                        getMovieSources(resultID, i, result);
+                    };
+                });
+
+                // var getShowDataFuzzy = $.getJSON(showsGuideBoxAPIFuzzy, function(data) {
+                //     var result = data.results;
+                //
+                //     for(var i = 0; i < result.length; i++) {
+                //         resultsArray = [];
+                //         result[i].netflix = false;
+                //         result[i].huluPlus = false;
+                //         result[i].amazonPrime = false;
+                //         result[i].hboNow = false;
+                //         result[i].starzPlay = false;
+                //         result[i].showtime = false;
+                //         result[i].noStreams = true;
+                //         resultsArray[i] = result[i];
+                //         $('#searchResultsContainer').append('<div class="result" id="result' + i + '">' + '<div class="resultHeader" id="resultHeader' + i + '">' + '<em>' + result[i].title + '</em>' + '<br/>' + '<img src="' + result[i].artwork_208x117 + '">' + '</div><div class="resultSources" id="resultSources' + i + '"></div></div><br>');
+                //
+                //         resultID = result[i].id;
+                //         getShowSources(resultID, i, result);
+                //     };
+                // });
+            };
+
+            var getMovieSources = function(resultID, i, result) {
+                var resultAPI = baseAPI + region + key + 'movie/' + resultID;
+                var sourceDivId = '#resultSources' + i;
+                var getSource = $.getJSON(resultAPI, function(dataAlt) {
+                    var sourcesSubWeb = dataAlt.subscription_web_sources;
+                    for(var j = 0; j < sourcesSubWeb.length; j++) {
+                        if(sourcesSubWeb.length === 0) {
+                            result[i].noStreams = true;
+                        } else {
+                            if(sourcesSubWeb[j].source === 'netflix') {
+                                result[i].netflix = true;
+                            };
+                            if(sourcesSubWeb[j].source === 'amazon_prime') {
+                                result[i].amazonPrime = true;
+                            };
+                            if(sourcesSubWeb[j].source === 'hulu_plus') {
+                                result[i].huluPlus = true;
+                            };
+                            if(sourcesSubWeb[j].source === 'starz_subscription') {
+                                result[i].starzPlay = true;
+                            };
+                            if(sourcesSubWeb[j].source === 'hbo_now') {
+                                result[i].hboNow = true;
+                            };
+                            if(sourcesSubWeb[j].source === 'showtime_subscription') {
+                                result[i].showtime = true;
+                            };
+                        };
+                        // if(sourcesSubWeb.length > 0) {
+                        //     $(sourceDivId).append(sourcesSubWeb[j].display_name);
+                        // } else {
+                        //     $(sourceDivId).html('#sadface');
+                        // };
+                    };
+
+                    var sourcesTV = dataAlt.tv_everywhere_web_sources;
+                    for(var j = 0; j < sourcesTV.length; j++) {
+                        var id = '#resultSources' + i;
+                        if(sourcesTV[j].source === 'starz_tveverywhere') {
+                            result[i].starzPlay = true;
+                        };
+
+
+                        // if(sourcesTV.length > 0) {
+                        //     $(sourceDivId).append(sourcesTV[j].display_name);
+                        // } else {
+                        //     $(sourceDivId).html('#sadface');
+                        // };
+                    };
+
+                    function StreamResult(name, image, url) {
+                        this.name = name;
+                        this.image = '<img class="streamLogo" src="' + image + '"/>';
+                        this.url = url;
+                    };
+
+                    var resultNetflix = new StreamResult('Netflix', 'images/streaming_services/logo_netflix.png');
+                    var resultHulu = new StreamResult('Hulu Plus', 'images/streaming_services/logo_hulu.png');
+                    var resultAmazon = new StreamResult('Amazon Prime', 'images/streaming_services/logo_amazon.png');
+                    var resultHBO = new StreamResult('HBO Go', 'images/streaming_services/logo_hbo.png');
+                    var resultStarz = new StreamResult('Starz Play', 'images/streaming_services/logo_starz.png');
+                    var resultShowtime = new StreamResult('Showtime', 'images/streaming_services/logo_showtime.png');
+
+                    var displaySource = function(source, url) {
+                        $(sourceDivId).append(source.image);
+                        console.log(url);
+                    };
+
+                    var returnSources = function(res) {
+                        // for(var k = 0; k < resultsArray.length; k++) {
+                        //     var res = resultsArray[k];
+                        //     console.log(res);
+
+                        if(res.netflix === true){
+                            res.noStreams = false;
+                            res.netflixLink =
+                            displaySource(resultNetflix);
+                        };
+                        if(res.huluPlus === true){
+                            res.noStreams = false;
+                            displaySource(resultHulu);
+                        };
+                        if(res.amazonPrime === true){
+                            res.noStreams = false;
+                            displaySource(resultAmazon);
+                        };
+                        if(res.hboNow === true){
+                            res.noStreams = false;
+                            displaySource(resultHBO);
+                        };
+                        if(res.starzPlay === true){
+                            res.noStreams = false;
+                            displaySource(resultStarz);
+                        };
+                        if(res.showtime === true){
+                            res.noStreams = false;
+                            displaySource(resultShowtime);
+                        };
+                        if(res.noStreams === true){
+                            $(sourceDivId).prepend('Sorry! This title is not (legally) streaming anywhere right now...');
+                        };
+                    };
+                    returnSources(result[i]);
+                });
+                loadingResults = false;
+                loadResults();
+            };
+
+            // var getShowSources = function(resultID, i, result) {
+            //     var resultAPI = baseAPI + region + key + 'show/' + resultID;
+            //     var sourceDivId = '#resultSources' + i;
+            //     var getSource = $.getJSON(resultAPI, function(dataAlt) {
+            //         var sourcesSubWeb = dataAlt.channels;
+            //         for(var j = 0; j < sourcesSubWeb.length; j++) {
+            //             if(sourcesSubWeb.length === 0) {
+            //                 result[i].noStreams = true;
+            //             } else {
+            //                 if(sourcesSubWeb[j].short_name === 'netflix') {
+            //                     result[i].netflix = true;
+            //                 };
+            //                 if(sourcesSubWeb[j].short_name === 'amazon_prime') {
+            //                     result[i].amazonPrime = true;
+            //                 };
+            //                 if(sourcesSubWeb[j].short_name === 'hulu_plus') {
+            //                     result[i].huluPlus = true;
+            //                 };
+            //                 if(sourcesSubWeb[j].short_name === 'starz_subscription') {
+            //                     result[i].starzPlay = true;
+            //                 };
+            //                 if(sourcesSubWeb[j].short_name === 'hbo_now') {
+            //                     result[i].hboNow = true;
+            //                 };
+            //                 if(sourcesSubWeb[j].short_name === 'showtime_subscription') {
+            //                     result[i].showtime = true;
+            //                 };
+            //             };
+            //         };
+            //
+            //         function StreamResult(name, image, url) {
+            //             this.name = name;
+            //             this.image = '<img class="streamLogo" src="' + image + '"/>';
+            //             this.url = url;
+            //         };
+            //
+            //         var resultNetflix = new StreamResult('Netflix', 'images/logo_netflix.png');
+            //         var resultHulu = new StreamResult('Hulu Plus', 'images/logo_hulu.png');
+            //         var resultAmazon = new StreamResult('Amazon Prime', 'images/logo_amazon.png');
+            //         var resultHBO = new StreamResult('HBO Go', 'images/logo_hbo.png');
+            //         var resultStarz = new StreamResult('Starz Play', 'images/logo_starz.png');
+            //         var resultShowtime = new StreamResult('Showtime', 'images/logo_showtime.png');
+            //
+            //         var displaySource = function(source, url) {
+            //             $(sourceDivId).append(source.image);
+            //             console.log(url);
+            //         };
+            //
+            //         var returnSources = function(res) {
+            //
+            //             if(res.netflix === true){
+            //                 res.noStreams = false;
+            //                 res.netflixLink =
+            //                 displaySource(resultNetflix);
+            //             };
+            //             if(res.huluPlus === true){
+            //                 res.noStreams = false;
+            //                 displaySource(resultHulu);
+            //             };
+            //             if(res.amazonPrime === true){
+            //                 res.noStreams = false;
+            //                 displaySource(resultAmazon);
+            //             };
+            //             if(res.hboNow === true){
+            //                 res.noStreams = false;
+            //                 displaySource(resultHBO);
+            //             };
+            //             if(res.starzPlay === true){
+            //                 res.noStreams = false;
+            //                 displaySource(resultStarz);
+            //             };
+            //             if(res.showtime === true){
+            //                 res.noStreams = false;
+            //                 displaySource(resultShowtime);
+            //             };
+            //             if(res.noStreams === true){
+            //                 $(sourceDivId).prepend('Sorry! This title is not (legally) streaming anywhere right now...')
+            //             };
+            //         };
+            //         returnSources(result[i].show);
+            //     });
+            //     loadingResults = false;
+            //     loadResults();
+            // };
+
+            var loadResults = function() {
+                if(loadingResults === true) {
+                    $('.active').attr('src', 'images/logo_load.gif')
+                } else {
+                    $('.active').attr('src', 'images/streamline_logo.png')
+                };
+            };
+
+            // var loadResults = function() {
+            //     var loadImageCache = [
+            //         'streamline/images/streamline_logo_1.png',
+            //         'streamline/images/streamline_logo_2.png',
+            //         'streamline/images/streamline_logo_3.png',
+            //         'streamline/images/streamline_logo.png',
+            //     ];
+            //     for(var i = 0; i < loadImageCache.length; i++) {
+            //         // if(loadImageCache === Array) {
+            //             $('#streamlineLogo').attr('src', loadImageCache[i]);
+            //             setTimeout(function(){console.log(loadImageCache[i])}, 3000);
+            //         // } else {
+            //         //     $('#streamlineLogo').attr('src', loadImageCache[3]);
+            //         // };
+            //     };
+            // };
+
+            $(document).on('click', '.streamLogo', function() {
+            });
+
+                // var getDataFuzzy = $.getJSON(guideBoxAPIExact, function(data) {
+                //     var result = data.results;
+                //     for(var i = 0; i < result.length; i++) {
+                //         $('#resultSources').append('<div id="resultHeader' + i + '">' + '<em>' + result[i].title + '</em>, ' + result[i].release_year + '<br/>' + '<img src="' + result[i].poster_120x171 + '">' + '</div>' + '<br/>');
+                //         getSource;
+                //
+                //         resultID = result[i].id;
+                //         var resultAPI = baseAPI + region + key + 'movie/' + resultID;
+                //
+                //         var getSource = $.getJSON(resultAPI, function(data) {
+                //             var sources = data.subscription_web_sources;
+                //             for(var i = 0; i < sources.length; i++) {
+                //                 var id = '#resultSources' + i;
+                //                 if(sources[i].length === 0) {
+                //                     $(id).append('#sadface');
+                //                 } else {
+                //                     $(id).append(' '+sources[i].display_name);
+                //                 };
+                //             };
+                //         });
+                //     };
+                // });
+
+
+        </script>
+    </body>
+</html>

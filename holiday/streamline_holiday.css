@@ -1,0 +1,22 @@
+
+.tagline {
+    transition: font-size 1s;
+    font-style: italic;
+    font-size: 20px;
+    cursor: default;
+}
+.tagline-shrink {
+    font-size: 0px;
+}
+
+#header {
+    padding-bottom: 0px;
+    padding-top: 8%;
+}
+.taglineMobile {
+    font-size: 16px;
+    font-style: italic;
+}
+.resize-shrink {
+    margin-bottom: 20px;
+}

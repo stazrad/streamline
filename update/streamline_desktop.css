@@ -1,0 +1,315 @@
+* {
+    text-align: center;
+    margin: auto;
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+}
+body {
+    background-color: white;
+}
+.blue {
+    color: #4bc9f1;
+}
+.grey {
+    color: #d1d1d1;
+}
+.red {
+    color: #ec4349;
+}
+.resize {
+    width: 55%;
+    height: auto;
+    margin: 28px;
+    min-width: 420px;
+    max-width: 550px;
+    transition: width 1s;
+    display: none;
+}
+.resize-shrink {
+    width: 40%;
+}
+.active {
+    display: inline;
+}
+#header {
+    padding-top: 200px;
+    width: 100%;
+    transition: margin 1s;
+    position: fixed;
+    background-color: white;
+    transition: padding 1s;
+    color: black;
+}
+#searchResultsContainer {
+    width: 80%;
+    margin: auto;
+    max-width: 800px;
+    padding-top: 340px;
+}
+#userInput {
+    font-size: inherit;
+    width: 50%;
+    height: 38px;
+    border-radius: 5px;
+    /*border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;*/
+    outline: none;
+    text-align: center;
+    background-color: #e2e2e2;
+    font-color: black;
+    border: 0;
+    margin-left: 1px;
+}
+.selector {
+    width: 20%;
+    max-width: 80px;
+    height: 35px;
+    display: none;
+}
+.belowSearchMobile {
+    margin-top: 10px;
+    display: inline-block;
+    width: 90%;
+    max-width: 400px;
+    min-width: 285px;
+}
+.searchButtonBox {
+    display: inline-block;
+    width: 20%;
+    text-align: left;
+}
+.mobileSelectorBox {
+    display: inline-block;
+    width: 55%;
+    text-align: right;
+}
+.mobileSelector {
+
+}
+.movieSelectToggle {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    color: #797979;
+    background-color: #d1d1d1;
+    display: inline-block;
+    width: 45%;
+    height: 30px;
+    padding-top: 6px;
+    -webkit-box-shadow: inset -1px 2px 4px 1px rgba(160, 160, 160, 0.5);
+    box-shadow: inset -1px 2px 4px 1px rgba(160, 160, 160, 0.5);
+    margin-right: 1px;
+    cursor: default;
+}
+.showSelectToggle {
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    color: #797979;
+    background-color: #d1d1d1;
+    display: inline-block;
+    width: 45%;
+    height: 30px;
+    padding-top: 6px;
+    -webkit-box-shadow: inset 2px 1px 2px 1px rgba(160, 160, 160, 0.5);
+    box-shadow: inset 2px 1px 2px 1px rgba(160, 160, 160, 0.5);
+    cursor: default;
+}
+.movieSelect {
+    background-color: #4BC9F1;
+    color: white;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.showSelect {
+    background-color: #e1676b;
+    color: white;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+
+input {
+    font-weight: 400;
+    max-width: 400px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.08);*/
+}
+h2 {
+    display: inline-block;
+}
+.counter {
+    font-size: 18px;
+    padding-bottom: 18px;
+    margin-top: 18px;
+}
+.tagline {
+    display: inline-block;
+    font-size: 18px;
+    transition: display .8s;
+    letter-spacing: .5px;
+    cursor: default;
+}
+.taglineMobile {
+    display: none;
+}
+a {
+    text-decoration: none;
+}
+
+::-webkit-input-placeholder {
+   color: black;
+   font-size: 15px;
+}
+:-moz-placeholder { /* Firefox 18- */
+   color: black;
+   font-size: 15px;
+}
+::-moz-placeholder {  /* Firefox 19+ */
+   color: black;
+   font-size: 15px;
+}
+:-ms-input-placeholder {
+   color: black;
+   font-size: 15px;
+}
+
+.movieTitle {
+    margin-top: 8px;
+    /*border-radius: 5px;*/
+}
+.showTitle {
+    width: 100%;
+    margin-top: 8px;
+    /*border-radius: 5px;*/
+}
+.result {
+    margin-left: 4%;
+    padding: 2%;
+    margin-right: 4%;
+    height: 200px;
+    border-radius: 5px;
+    background-color: #e2e2e2;
+}
+.result:hover {
+    /*box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.1), 0 6px 20px 0 rgba(0, 0, 0, 0.08);*/
+}
+.resultHeader {
+    width: 35%;
+    height: auto;
+    margin: 0px;
+    display: inline-block;
+    height: 220px;
+    top: 200px;
+}
+
+.resultSources {
+    width: 50%;
+    height: 0px;
+    margin: 0px;
+    margin-left: 10%;
+    margin-bottom: 10%;
+    display: inline-block;
+    max-wdith: 600px;
+    max-height: 220px;
+}
+
+.streamLogo {
+    display: inline-block;
+    width: 40%;
+    margin: 5%;
+    padding: auto;
+    cursor: pointer;
+}
+.streamLogo:hover {
+    opacity: .8;
+}
+.toTheTop {
+    display: none;
+}
+.searchButtonBox {
+    display: none;
+}
+
+.noResultMeme {
+    width: 70%;
+}
+
+
+/* The switch - the box around the slider */
+.switch {
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  width: 100%;
+  height: 42px;
+  bottom: -14px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {display:none;}
+
+/* The slider */
+.slider {
+  color: white;
+  overflow: hidden;
+  position: absolute;
+  cursor: pointer;
+  border-radius: 5px;
+  border-top-right-radius: 0px;
+  border-bottom-right-radius: 0px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: -2px;
+  background-color: #e1676b;
+  -webkit-transition: 1s;
+  transition: 1s;
+  padding-top: 8px;
+  padding-bottom: 4px;
+  height: 28px;
+}
+.slider:hover + .slider-before {
+    margin-left: 40px;
+    opacity: .9;
+}
+/*.slider:hover {
+    background-color: #e1676b;
+}*/
+/*.slider:not(:focus):hover {
+    -webkit-transform: translateX(0px);
+    -ms-transform: translateX(0px);
+    transform: translateX(0px);
+}*/
+
+.slider-before {
+    color: white;
+    cursor: pointer;
+    position: absolute;
+    height: 28px;
+    width: 100%;
+    left: 0px;
+    bottom: 0px;
+    border-radius: 5px;
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    background-color: #4bc9f1;
+    -webkit-transition: .4s;
+    transition: .4s;
+    padding-top: 8px;
+    padding-bottom: 4px;
+    z-index: 1;
+}
+
+input:checked + .slider-before {
+  -webkit-transform: translateX(100px);
+  -ms-transform: translateX(100px);
+  transform: translateX(100px);
+}
+
+input:checked + .slider {
+  background-color: #e1676b;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #e1676b;
+}
